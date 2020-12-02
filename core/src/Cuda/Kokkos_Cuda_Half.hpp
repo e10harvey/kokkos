@@ -277,20 +277,21 @@ class half_t {
 
   // Binary operators
   KOKKOS_FUNCTION
-  half_t& operator=(impl_type rhs) {
+  volatile half_t& operator=(impl_type rhs) volatile {
     val = rhs;
     return *this;
   }
 
   template <class T>
-  KOKKOS_FUNCTION half_t& operator=(T rhs) {
+  KOKKOS_FUNCTION
+  volatile half_t& operator=(T rhs) volatile {
     val = cast_to_half(rhs).val;
     return *this;
   }
 
   // Compound operators
   KOKKOS_FUNCTION
-  half_t& operator+=(half_t rhs) {
+  volatile half_t& operator+=(half_t rhs) volatile {
 #ifdef __CUDA_ARCH__
     val += rhs.val;
 #else
@@ -323,7 +324,7 @@ class half_t {
   }
 
   KOKKOS_FUNCTION
-  half_t& operator-=(half_t rhs) {
+  volatile half_t& operator-=(half_t rhs) volatile {
 #ifdef __CUDA_ARCH__
     val -= rhs.val;
 #else
@@ -356,7 +357,7 @@ class half_t {
   }
 
   KOKKOS_FUNCTION
-  half_t& operator*=(half_t rhs) {
+  volatile half_t& operator*=(half_t rhs) volatile {
 #ifdef __CUDA_ARCH__
     val *= rhs.val;
 #else
@@ -389,7 +390,7 @@ class half_t {
   }
 
   KOKKOS_FUNCTION
-  half_t& operator/=(half_t rhs) {
+  volatile half_t& operator/=(half_t rhs) volatile {
 #ifdef __CUDA_ARCH__
     val /= rhs.val;
 #else

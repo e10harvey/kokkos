@@ -55,7 +55,7 @@ using ScalarType     = double;
 using ViewType       = Kokkos::View<ScalarType*, ExecutionSpace>;
 using ViewTypeHost   = Kokkos::View<ScalarType*, Kokkos::HostSpace>;
 KOKKOS_FUNCTION
-const half_t& accept_ref(const half_t& a) { return a; }
+const volatile half_t& accept_ref(const volatile half_t& a) { return a; }
 
 enum OP_TESTS {
   ASSIGN,
@@ -271,16 +271,16 @@ enum OP_TESTS {
 
 template <class view_type>
 struct Functor_TestHalfOperators {
-  half_t h_lhs, h_rhs;
-  double d_lhs, d_rhs;
+  const volatile half_t h_lhs;
+  const volatile half_t h_rhs;
+  const volatile double d_lhs;
+  const volatile half_t d_rhs;
   view_type actual_lhs, expected_lhs;
 
   Functor_TestHalfOperators(half_t lhs = half_t(0), half_t rhs = half_t(0))
-      : h_lhs(lhs), h_rhs(rhs) {
+      : h_lhs(lhs), h_rhs(rhs), d_lhs(lhs), d_rhs(rhs) {
     actual_lhs   = view_type("actual_lhs", N_OP_TESTS);
     expected_lhs = view_type("expected_lhs", N_OP_TESTS);
-    d_lhs        = cast_from_half<double>(h_lhs);
-    d_rhs        = cast_from_half<double>(h_rhs);
 
     if (std::is_same<view_type, ViewTypeHost>::value) {
       auto run_on_host = *this;
@@ -375,9 +375,9 @@ struct Functor_TestHalfOperators {
 
   KOKKOS_FUNCTION
   void operator()(int) const {
-    half_t tmp_lhs, tmp2_lhs, *tmp_ptr;
-    double tmp_d_lhs;
-    float tmp_s_lhs;
+    volatile half_t tmp_lhs, tmp2_lhs, *tmp_ptr;
+    volatile double tmp_d_lhs;
+    volatile float tmp_s_lhs;
     using half_impl_type = Kokkos::Impl::half_impl_t::type;
     half_impl_type half_tmp;
 
