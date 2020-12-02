@@ -275,6 +275,11 @@ class half_t {
     return tmp;
   }
 
+  // TODO: Supress "warning: implicit dereference will not access object of type ‘volatile __half’ in statement"
+  // See https://github.com/kokkos/kokkos/issues/177
+  // Changing the return type to void on these (=, +=, -=, *=, and /=) operators does not
+  // supress the warning.
+
   // Binary operators
   KOKKOS_FUNCTION
   volatile half_t& operator=(impl_type rhs) volatile {
@@ -293,7 +298,10 @@ class half_t {
   KOKKOS_FUNCTION
   volatile half_t& operator+=(half_t rhs) volatile {
 #ifdef __CUDA_ARCH__
-    val += rhs.val;
+    // Cuda 10 supports __half volatile stores but not volatile arithmetic operands
+    // Cast away volatile-ness of val for arithmetic but not for store location
+    // TODO: Investigate volatile read of val
+    val = const_cast<impl_type*>(&val)[0] + rhs.val;
 #else
     val     = __float2half(__half2float(val) + __half2float(rhs.val));
 #endif
@@ -326,7 +334,9 @@ class half_t {
   KOKKOS_FUNCTION
   volatile half_t& operator-=(half_t rhs) volatile {
 #ifdef __CUDA_ARCH__
-    val -= rhs.val;
+    // Cuda 10 supports __half volatile stores but not volatile arithmetic operands
+    // Cast away volatile-ness of val for arithmetic but not for store location
+    val = const_cast<impl_type*>(&val)[0] - rhs.val;
 #else
     val     = __float2half(__half2float(val) - __half2float(rhs.val));
 #endif
@@ -359,7 +369,9 @@ class half_t {
   KOKKOS_FUNCTION
   volatile half_t& operator*=(half_t rhs) volatile {
 #ifdef __CUDA_ARCH__
-    val *= rhs.val;
+    // Cuda 10 supports __half volatile stores but not volatile arithmetic operands
+    // Cast away volatile-ness of val for arithmetic but not for store location
+    val = const_cast<impl_type*>(&val)[0] * rhs.val;
 #else
     val     = __float2half(__half2float(val) * __half2float(rhs.val));
 #endif
@@ -392,7 +404,9 @@ class half_t {
   KOKKOS_FUNCTION
   volatile half_t& operator/=(half_t rhs) volatile {
 #ifdef __CUDA_ARCH__
-    val /= rhs.val;
+    // Cuda 10 supports __half volatile stores but not volatile arithmetic operands
+    // Cast away volatile-ness of val for arithmetic but not for store location
+    val = const_cast<impl_type*>(&val)[0] / rhs.val;
 #else
     val     = __float2half(__half2float(val) / __half2float(rhs.val));
 #endif
