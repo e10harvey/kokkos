@@ -447,6 +447,24 @@ struct rand<Generator, unsigned long long> {
   }
 };
 
+#if defined(KOKKOS_HALF_T_IS_FLOAT) && !KOKKOS_HALF_T_IS_FLOAT
+template <class Generator>
+struct rand<Generator, Kokkos::Experimental::half_t> {
+  KOKKOS_INLINE_FUNCTION
+  static Kokkos::Experimental::half_t max() { return 1.0f; }
+  KOKKOS_INLINE_FUNCTION
+  static Kokkos::Experimental::half_t draw(Generator& gen) { return gen.hrand(); }
+  KOKKOS_INLINE_FUNCTION
+  static Kokkos::Experimental::half_t draw(Generator& gen, const Kokkos::Experimental::half_t& range) {
+    return gen.hrand(range);
+  }
+  KOKKOS_INLINE_FUNCTION
+  static Kokkos::Experimental::half_t draw(Generator& gen, const Kokkos::Experimental::half_t& start, const Kokkos::Experimental::half_t& end) {
+    return gen.hrand(start, end);
+  }
+};
+#endif // defined(KOKKOS_HALF_T_IS_FLOAT) && !KOKKOS_HALF_T_IS_FLOAT
+
 template <class Generator>
 struct rand<Generator, float> {
   KOKKOS_INLINE_FUNCTION
@@ -767,6 +785,19 @@ class Random_XorShift64 {
   KOKKOS_INLINE_FUNCTION
   int64_t rand64(const int64_t& start, const int64_t& end) {
     return rand64(end - start) + start;
+  }
+
+  KOKKOS_INLINE_FUNCTION
+  Kokkos::Experimental::half_t hrand() { return urand64() / static_cast<Kokkos::Experimental::half_t>(MAX_URAND64); }
+
+  KOKKOS_INLINE_FUNCTION
+  Kokkos::Experimental::half_t hrand(const Kokkos::Experimental::half_t& range) {
+    return range * urand64() / static_cast<Kokkos::Experimental::half_t>(MAX_URAND64);
+  }
+
+  KOKKOS_INLINE_FUNCTION
+  Kokkos::Experimental::half_t hrand(const Kokkos::Experimental::half_t& start, const Kokkos::Experimental::half_t& end) {
+    return hrand(end - start) + start;
   }
 
   KOKKOS_INLINE_FUNCTION
