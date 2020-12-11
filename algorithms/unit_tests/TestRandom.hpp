@@ -461,6 +461,23 @@ void test_random(unsigned int num_draws) {
   deep_copy(density_1d, 0);
   deep_copy(density_3d, 0);
 
+  #if defined(KOKKOS_HALF_T_IS_FLOAT) && !KOKKOS_HALF_T_IS_FLOAT
+  cout << "Test Scalar=Kokkos::Experimental::half_t" << endl;
+  test_random_scalar<RandomGenerator, Kokkos::Experimental::half_t> test_half_t(density_1d, density_3d,
+                                                        pool, num_draws);
+  ASSERT_EQ(test_half_t.pass_mean, 1);
+  ASSERT_EQ(test_half_t.pass_var, 1);
+  ASSERT_EQ(test_half_t.pass_covar, 1);
+  ASSERT_EQ(test_half_t.pass_hist1d_mean, 1);
+  ASSERT_EQ(test_half_t.pass_hist1d_var, 1);
+  ASSERT_EQ(test_half_t.pass_hist1d_covar, 1);
+  ASSERT_EQ(test_half_t.pass_hist3d_mean, 1);
+  ASSERT_EQ(test_half_t.pass_hist3d_var, 1);
+  ASSERT_EQ(test_half_t.pass_hist3d_covar, 1);
+  deep_copy(density_1d, 0);
+  deep_copy(density_3d, 0);
+  #endif
+
   cout << "Test Scalar=float" << endl;
   test_random_scalar<RandomGenerator, float> test_float(density_1d, density_3d,
                                                         pool, num_draws);
