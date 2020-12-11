@@ -1037,6 +1037,19 @@ class Random_XorShift1024 {
   }
 
   KOKKOS_INLINE_FUNCTION
+  Kokkos::Experimental::half_t hrand() { return urand64() / static_cast<Kokkos::Experimental::half_t>(MAX_URAND64); }
+
+  KOKKOS_INLINE_FUNCTION
+  Kokkos::Experimental::half_t hrand(const Kokkos::Experimental::half_t& range) {
+    return range * urand64() / static_cast<Kokkos::Experimental::half_t>(MAX_URAND64);
+  }
+
+  KOKKOS_INLINE_FUNCTION
+  Kokkos::Experimental::half_t hrand(const Kokkos::Experimental::half_t& start, const Kokkos::Experimental::half_t& end) {
+    return hrand(end - start) + start;
+  }
+
+  KOKKOS_INLINE_FUNCTION
   float frand() { return urand64() / static_cast<float>(MAX_URAND64); }
 
   KOKKOS_INLINE_FUNCTION
