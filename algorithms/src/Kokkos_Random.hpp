@@ -701,14 +701,27 @@ class Random_XorShift64 {
  public:
   using device_type = DeviceType;
 
+  constexpr static uint32_t MAX_URAND16   = std::numeric_limits<uint16_t>::max();
   constexpr static uint32_t MAX_URAND   = std::numeric_limits<uint32_t>::max();
   constexpr static uint64_t MAX_URAND64 = std::numeric_limits<uint64_t>::max();
+  constexpr static int32_t MAX_RAND16     = std::numeric_limits<int16_t>::max();
   constexpr static int32_t MAX_RAND     = std::numeric_limits<int32_t>::max();
   constexpr static int64_t MAX_RAND64   = std::numeric_limits<int64_t>::max();
 
   KOKKOS_INLINE_FUNCTION
   Random_XorShift64(uint64_t state, int state_idx = 0)
       : state_(state == 0 ? uint64_t(1318319) : state), state_idx_(state_idx) {}
+
+  KOKKOS_INLINE_FUNCTION
+  uint16_t urand16() {
+    state_ ^= state_ >> 12;
+    state_ ^= state_ << 25;
+    state_ ^= state_ >> 27;
+
+    uint64_t tmp = state_ * 2685821657736338717ULL;
+    tmp          = tmp >> 32;
+    return static_cast<uint16_t>(tmp & MAX_URAND16);
+  }
 
   KOKKOS_INLINE_FUNCTION
   uint32_t urand() {
@@ -788,11 +801,11 @@ class Random_XorShift64 {
   }
 
   KOKKOS_INLINE_FUNCTION
-  Kokkos::Experimental::half_t hrand() { return urand64() / static_cast<Kokkos::Experimental::half_t>(MAX_URAND64); }
+  Kokkos::Experimental::half_t hrand() { return urand16() / static_cast<Kokkos::Experimental::half_t>(MAX_URAND16); }
 
   KOKKOS_INLINE_FUNCTION
   Kokkos::Experimental::half_t hrand(const Kokkos::Experimental::half_t& range) {
-    return range * urand64() / static_cast<Kokkos::Experimental::half_t>(MAX_URAND64);
+    return range * urand16() / static_cast<Kokkos::Experimental::half_t>(MAX_URAND16);
   }
 
   KOKKOS_INLINE_FUNCTION
