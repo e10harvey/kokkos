@@ -701,7 +701,6 @@ class Random_XorShift64 {
  public:
   using device_type = DeviceType;
 
-  constex
   constexpr static uint16_t MAX_URAND16   = std::numeric_limits<uint16_t>::max();
   constexpr static uint32_t MAX_URAND   = std::numeric_limits<uint32_t>::max();
   constexpr static uint64_t MAX_URAND64 = std::numeric_limits<uint64_t>::max();
