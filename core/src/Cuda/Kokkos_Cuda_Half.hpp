@@ -45,6 +45,7 @@
 #ifndef KOKKOS_CUDA_HALF_HPP_
 #define KOKKOS_CUDA_HALF_HPP_
 
+#include <iostream>
 #include <Kokkos_Macros.hpp>
 #ifdef KOKKOS_ENABLE_CUDA
 #if !(defined(KOKKOS_COMPILER_CLANG) && KOKKOS_COMPILER_CLANG < 900) && \
@@ -605,6 +606,17 @@ class half_t {
 #else
     return __half2float(val) >= __half2float(rhs.val);
 #endif
+  }
+
+  // Insertion and extraction operators
+  friend std::ostream& operator<<(std::ostream& os, const half_t& x) {
+    os << static_cast<float>(x);
+    return os;
+  }
+
+  friend std::istream& operator>>(std::istream& is, half_t& x) {
+    is >> x;
+    return is;
   }
 };
 
