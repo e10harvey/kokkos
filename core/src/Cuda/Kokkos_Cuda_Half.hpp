@@ -284,13 +284,62 @@ class half_t {
 
   // Binary operators
   KOKKOS_FUNCTION
-  volatile half_t& operator=(impl_type rhs) volatile {
+  half_t& operator=(impl_type rhs) {
     val = rhs;
     return *this;
   }
 
-  template <class T>
-  KOKKOS_FUNCTION volatile half_t& operator=(T rhs) volatile {
+  KOKKOS_FUNCTION
+  half_t& operator=(half_t rhs) {
+    val = rhs.val;
+    return *this;
+  }
+
+  KOKKOS_FUNCTION
+  void operator=(impl_type rhs) volatile {
+    val = rhs;
+  }
+
+  KOKKOS_FUNCTION
+  void operator=(half_t rhs) volatile {
+    val = rhs.val;
+  }
+
+  template <class T,
+	    std::enable_if_t<
+		    std::is_same<T, float>::value ||
+		    std::is_same<T, bool>::value ||
+		    std::is_same<T, double>::value ||
+		    std::is_same<T, short>::value ||
+		    std::is_same<T, int>::value ||
+		    std::is_same<T, long>::value ||
+		    std::is_same<T, long long>::value ||
+		    std::is_same<T, unsigned short>::value ||
+		    std::is_same<T, unsigned int>::value ||
+		    std::is_same<T, unsigned long>::value ||
+		    std::is_same<T, unsigned long long>::value,
+		    bool> = true
+	    >
+  KOKKOS_FUNCTION void operator=(T rhs) volatile {
+    val = cast_to_half(rhs).val;
+  }
+
+  template <class T,
+	    std::enable_if_t<
+		    std::is_same<T, float>::value ||
+		    std::is_same<T, bool>::value ||
+		    std::is_same<T, double>::value ||
+		    std::is_same<T, short>::value ||
+		    std::is_same<T, int>::value ||
+		    std::is_same<T, long>::value ||
+		    std::is_same<T, long long>::value ||
+		    std::is_same<T, unsigned short>::value ||
+		    std::is_same<T, unsigned int>::value ||
+		    std::is_same<T, unsigned long>::value ||
+		    std::is_same<T, unsigned long long>::value,
+		    bool> = true
+	    >
+  KOKKOS_FUNCTION half_t& operator=(T rhs) {
     val = cast_to_half(rhs).val;
     return *this;
   }
@@ -300,8 +349,8 @@ class half_t {
   volatile half_t& operator+=(half_t rhs) volatile {
 #ifdef __CUDA_ARCH__
     // Cuda 10 supports __half volatile stores but not volatile arithmetic
-    // operands Cast away volatile-ness of val for arithmetic but not for store
-    // location
+    // operands. Cast away volatile-ness of val for arithmetic but not for store
+    // location.
     // TODO: Investigate volatile read of val
     val = const_cast<impl_type*>(&val)[0] + rhs.val;
 #else
