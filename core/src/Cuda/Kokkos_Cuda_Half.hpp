@@ -276,12 +276,6 @@ class half_t {
     return tmp;
   }
 
-  // TODO: Supress "warning: implicit dereference will not access object of type
-  // ‘volatile __half’ in statement" See
-  // https://github.com/kokkos/kokkos/issues/177 Changing the return type to
-  // void on these (=, +=, -=, *=, and /=) operators does not supress the
-  // warning.
-
   // Binary operators
   KOKKOS_FUNCTION
   half_t& operator=(impl_type rhs) {
@@ -290,58 +284,19 @@ class half_t {
   }
 
   KOKKOS_FUNCTION
-  half_t& operator=(half_t rhs) {
-    val = rhs.val;
-    return *this;
-  }
-
-  KOKKOS_FUNCTION
   void operator=(impl_type rhs) volatile {
     val = rhs;
   }
 
-  KOKKOS_FUNCTION
-  void operator=(half_t rhs) volatile {
-    val = rhs.val;
-  }
-
-  template <class T,
-	    std::enable_if_t<
-		    std::is_same<T, float>::value ||
-		    std::is_same<T, bool>::value ||
-		    std::is_same<T, double>::value ||
-		    std::is_same<T, short>::value ||
-		    std::is_same<T, int>::value ||
-		    std::is_same<T, long>::value ||
-		    std::is_same<T, long long>::value ||
-		    std::is_same<T, unsigned short>::value ||
-		    std::is_same<T, unsigned int>::value ||
-		    std::is_same<T, unsigned long>::value ||
-		    std::is_same<T, unsigned long long>::value,
-		    bool> = true
-	    >
-  KOKKOS_FUNCTION void operator=(T rhs) volatile {
-    val = cast_to_half(rhs).val;
-  }
-
-  template <class T,
-	    std::enable_if_t<
-		    std::is_same<T, float>::value ||
-		    std::is_same<T, bool>::value ||
-		    std::is_same<T, double>::value ||
-		    std::is_same<T, short>::value ||
-		    std::is_same<T, int>::value ||
-		    std::is_same<T, long>::value ||
-		    std::is_same<T, long long>::value ||
-		    std::is_same<T, unsigned short>::value ||
-		    std::is_same<T, unsigned int>::value ||
-		    std::is_same<T, unsigned long>::value ||
-		    std::is_same<T, unsigned long long>::value,
-		    bool> = true
-	    >
+  template <class T>
   KOKKOS_FUNCTION half_t& operator=(T rhs) {
     val = cast_to_half(rhs).val;
     return *this;
+  }
+
+  template <class T>
+  KOKKOS_FUNCTION void operator=(T rhs) volatile {
+    val = cast_to_half(rhs).val;
   }
 
   // Compound operators
